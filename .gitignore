@@ -1,0 +1,15 @@
+# Environnement virtuel
+.venv/
+venv/
+
+# Fichiers temporaires Python
+__pycache__/
+*.pyc
+
+# Sauvegardes
+*.bak
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
