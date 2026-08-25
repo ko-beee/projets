@@ -1,5 +1,8 @@
 import pygame
 import sys
+from pathlib import Path
+
+DOSSIER = Path(__file__).parent
 
 ############################
 ####   LES FONCTIONS   #####
@@ -45,12 +48,12 @@ def creerPerso():
   perso={}
   perso["ligne"]=4
   perso["colonne"]=6
-  perso["image"]=pygame.image.load('images/personnage/bonhomme.png').convert_alpha()
+  perso["image"]=pygame.image.load(DOSSIER / 'images/personnage/bonhomme.png').convert_alpha()
   perso["image"]= pygame.transform.scale(perso["image"], dimCase)
   perso["sens"]="stop"
-  perso["épée"]=pygame.transform.scale(pygame.image.load('images/personnage/personnage_epee.png').convert_alpha(), dimCase)
-  perso["chaussure"]=pygame.transform.scale(pygame.image.load('images/objet/chaussure.png').convert_alpha(), dimCase)
-  perso["bateau"]= pygame.transform.scale(pygame.image.load('images/objet/bateau.png').convert_alpha(), dimCase)
+  perso["épée"]=pygame.transform.scale(pygame.image.load(DOSSIER /'images/personnage/personnage_epee.png').convert_alpha(), dimCase)
+  perso["chaussure"]=pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/chaussure.png').convert_alpha(), dimCase)
+  perso["bateau"]= pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/bateau.png').convert_alpha(), dimCase)
   perso["objet"]={"bateau":False,"épée":False,"chaussure":False}
   perso["eau"]=False
   perso["montagne"]=False
@@ -60,9 +63,9 @@ def creerPerso():
 
 def creerObjets():
   objet={}
-  objet["bateau"]={"coordonnéX":17,"coordonnéY":53,"image":pygame.transform.scale(pygame.image.load('images/objet/bateau.png').convert_alpha(), dimCase),"perso":False}
-  objet["épée"]={"coordonnéX":14,"coordonnéY":50,"image":pygame.transform.scale(pygame.image.load('images/objet/epee.png').convert_alpha(), dimCase),"perso":False}
-  objet["chaussure"]={"coordonnéX":10,"coordonnéY":52,"image":pygame.transform.scale(pygame.image.load('images/objet/chaussure.png').convert_alpha(), dimCase),"perso":False}
+  objet["bateau"]={"coordonnéX":17,"coordonnéY":53,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/bateau.png').convert_alpha(), dimCase),"perso":False}
+  objet["épée"]={"coordonnéX":14,"coordonnéY":50,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/epee.png').convert_alpha(), dimCase),"perso":False}
+  objet["chaussure"]={"coordonnéX":10,"coordonnéY":52,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/chaussure.png').convert_alpha(), dimCase),"perso":False}
   return objet
 
 def dessinerObjets(objets):
@@ -136,22 +139,22 @@ fincarte=[coordonnéesinitiales[2], coordonnéesinitiales[3]]
 perso=creerPerso()
 objets=creerObjets()
 ### Chargement des fichiers ###
-imMer = pygame.image.load('images/carte/mer.jpg').convert_alpha()
+imMer = pygame.image.load(DOSSIER / 'images/carte/mer.jpg').convert_alpha()
 imMer = pygame.transform.scale(imMer, dimCase)
 
-imPrairie = pygame.image.load('images/carte/prairie.jpg').convert_alpha()
+imPrairie = pygame.image.load(DOSSIER / 'images/carte/prairie.jpg').convert_alpha()
 imPrairie = pygame.transform.scale(imPrairie, dimCase)
 
-imChamp = pygame.image.load('images/carte/champ.jpg').convert_alpha()
+imChamp = pygame.image.load(DOSSIER / 'images/carte/champ.jpg').convert_alpha()
 imChamp = pygame.transform.scale(imChamp, dimCase)
 
-imForet = pygame.image.load('images/carte/foret.jpg').convert_alpha()
+imForet = pygame.image.load(DOSSIER / 'images/carte/foret.jpg').convert_alpha()
 imForet = pygame.transform.scale(imForet, dimCase)
 
-imMontagne = pygame.image.load('images/carte/montagne.jpg').convert_alpha()
+imMontagne = pygame.image.load(DOSSIER / 'images/carte/montagne.jpg').convert_alpha()
 imMontagne = pygame.transform.scale(imMontagne, dimCase)
 
-carte = lire_fichier("carte_mini.csv")
+carte = lire_fichier(DOSSIER / "carte_mini.csv")
 
 
 continuer = True # variable pour laisser la fenêtre ouverte

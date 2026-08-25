@@ -69,6 +69,9 @@ Corrigé avec `splitlines()`, qui ne produit pas d'élément vide final et gère
 - `positionX` et `positionY` renommés en `positionColonne` et `positionLigne`,
   avec la convention des indices documentée en commentaire
 - Suppression de variables calculées mais jamais utilisées
+- Chemins d'accès aux images et à la carte rendus relatifs au fichier
+  (`Path(__file__).parent`) et non plus au dossier de lancement : le jeu
+  plantait dès qu'on l'exécutait depuis ailleurs.
 
 ## Ce qu'il reste à faire
 
