@@ -72,7 +72,14 @@ Corrigé avec `splitlines()`, qui ne produit pas d'élément vide final et gère
 - Chemins d'accès aux images et à la carte rendus relatifs au fichier
   (`Path(__file__).parent`) et non plus au dossier de lancement : le jeu
   plantait dès qu'on l'exécutait depuis ailleurs.
-
+- Suppressions des variables 'perso[objet]' pour aléger le code et moins de 
+  confusion car si `perso[objet][...]=True == objet[...][perso]=True`
+- Simplification des calculs pour savoir quand afficher l'objet, permettant 
+  ainsi de ne pas les affichers en dehors du cadre
+- Déplacement de l'appel de la fonction `persobloquer()` de la fonction 
+  `deplacerPerso()` à la fonction `dessinerMonde()` permettant ainsi d'éviter 
+  que la map s'affiche une fraction de seconde avec le personnage dans l'eau 
+  ou dans la montagne sans l'équipement pour
 ## Ce qu'il reste à faire
 
 La logique de jeu vit encore dans les fonctions d'affichage : `dessinerMonde`
@@ -80,7 +87,6 @@ décide si le personnage est sur l'eau ou en montagne, `dessinerObjets` gère le
 ramassage. Comme ces fonctions s'exécutent après `deplacerPerso`, le blocage
 est détecté avec une image de retard et le personnage apparaît brièvement sur
 le terrain interdit avant d'être renvoyé au départ.
-
 La prochaine étape est de séparer la mise à jour de l'état et l'affichage.
 
 Restent aussi à nettoyer : les compteurs `r` et `c` de `dessinerMonde`,

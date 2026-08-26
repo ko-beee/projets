@@ -19,31 +19,32 @@ def lire_fichier(nom):
   return carte
 
 def dessinerMonde(carte):
-    for ligne in range(debutcarte[0],fincarte[0]):
-      for colonne in range(debutcarte[1],fincarte[1]):
-          positionColonne = dimCase[0]*(colonne-debutcarte[1])+debutCadre[1]
-          positionLigne=dimCase[1]*(ligne-debutcarte[0])+debutCadre[0]
-          if positionColonne==debutCadre[0]+perso["colonne"]*dimCase[0] and positionLigne==debutCadre[1]+perso["ligne"]*dimCase[1]:
-            perso["eau"]=False
-            perso["montagne"]=False
-            if carte[ligne][colonne]=='1':
-              perso["eau"]=True
-            else:
-                if objets["épée"]["perso"]==True:
-                  perso["objet"]["épée"]=True
-                if carte[ligne][colonne]=='5':
-                  perso["montagne"]=True
-          if carte[ligne][colonne]=='1':      
-            screen.blit(imMer, (positionColonne,positionLigne))
-          elif carte[ligne][colonne]=='2':
-            screen.blit(imPrairie, (positionColonne,positionLigne))
-          elif carte[ligne][colonne]=='3':
-            screen.blit(imChamp, (positionColonne,positionLigne))
-          elif carte[ligne][colonne]=='4':
-            screen.blit(imForet, (positionColonne,positionLigne))
+  for ligne in range(debutcarte[0],fincarte[0]):
+    for colonne in range(debutcarte[1],fincarte[1]):
+        numeroColonne =colonne-debutcarte[1]
+        numeroLigne=ligne-debutcarte[0]
+        if numeroColonne==perso["colonne"] and numeroLigne==perso["ligne"]:
+          perso["eau"]=False
+          perso["montagne"]=False
+          if carte[ligne][colonne]=='1':
+            perso["eau"]=True
           elif carte[ligne][colonne]=='5':
-            screen.blit(imMontagne, (positionColonne,positionLigne))
-
+            perso["montagne"]=True
+          if persobloquer()==True:
+            return
+        numeroColonne = dimCase[0]*numeroColonne+debutCadre[0]
+        numeroLigne = dimCase[1]*numeroLigne+debutCadre[1]
+        if carte[ligne][colonne]=='1':      
+          screen.blit(imMer, (numeroColonne,numeroLigne))
+        elif carte[ligne][colonne]=='2':
+          screen.blit(imPrairie, (numeroColonne,numeroLigne))
+        elif carte[ligne][colonne]=='3':
+          screen.blit(imChamp, (numeroColonne,numeroLigne))
+        elif carte[ligne][colonne]=='4':
+          screen.blit(imForet, (numeroColonne,numeroLigne))
+        elif carte[ligne][colonne]=='5':
+          screen.blit(imMontagne, (numeroColonne,numeroLigne))
+  
 def creerPerso():
   perso={}
   perso["ligne"]=4
@@ -54,7 +55,6 @@ def creerPerso():
   perso["épée"]=pygame.transform.scale(pygame.image.load(DOSSIER /'images/personnage/personnage_epee.png').convert_alpha(), dimCase)
   perso["chaussure"]=pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/chaussure.png').convert_alpha(), dimCase)
   perso["bateau"]= pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/bateau.png').convert_alpha(), dimCase)
-  perso["objet"]={"bateau":False,"épée":False,"chaussure":False}
   perso["eau"]=False
   perso["montagne"]=False
 
@@ -63,38 +63,36 @@ def creerPerso():
 
 def creerObjets():
   objet={}
-  objet["bateau"]={"coordonnéX":17,"coordonnéY":53,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/bateau.png').convert_alpha(), dimCase),"perso":False}
-  objet["épée"]={"coordonnéX":14,"coordonnéY":50,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/epee.png').convert_alpha(), dimCase),"perso":False}
-  objet["chaussure"]={"coordonnéX":10,"coordonnéY":52,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/chaussure.png').convert_alpha(), dimCase),"perso":False}
+  objet["bateau"]={"colonne":17,"ligne":53,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/bateau.png').convert_alpha(), dimCase),"perso":False}
+  objet["épée"]={"colonne":14,"ligne":50,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/epee.png').convert_alpha(), dimCase),"perso":False}
+  objet["chaussure"]={"colonne":10,"ligne":52,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/chaussure.png').convert_alpha(), dimCase),"perso":False}
   return objet
 
 def dessinerObjets(objets):
   for (objet, chose) in objets.items():
-      positionColonne = dimCase[0]*(chose["coordonnéX"]-debutcarte[1])+debutCadre[0]
-      positionLigne=dimCase[1]*(chose["coordonnéY"]-debutcarte[0])+debutCadre[1]
-      if debutCadre[0]<=positionColonne<taille_fenetre[0] and debutCadre[1]<=positionLigne<taille_fenetre[1]:
+      if debutcarte[0]<=chose["ligne"]<fincarte[0] and debutcarte[1]<=chose["colonne"]<fincarte[1]:
+        coordonneColonne = dimCase[1]*(chose["colonne"]-debutcarte[1])+debutCadre[1]
+        coordonneLigne = dimCase[0]*(chose["ligne"]-debutcarte[0])+debutCadre[0]
         if chose["perso"]==False:
-          screen.blit(chose["image"], (positionColonne,positionLigne))
-        if positionColonne==debutCadre[0]+perso["colonne"]*dimCase[0] and positionLigne==debutCadre[1]+perso["ligne"]*dimCase[1]:
+          screen.blit(chose["image"], (coordonneColonne,coordonneLigne))
+        if coordonneColonne==debutCadre[0]+perso["colonne"]*dimCase[0] and coordonneLigne==debutCadre[1]+perso["ligne"]*dimCase[1]:
           chose["perso"]=True
-          perso["objet"][objet]=True
 
 def dessinerperso(perso):
-        positionColonne = debutCadre[0]+perso["colonne"]*dimCase[0]
-        positionLigne = debutCadre[1]+perso["ligne"]*dimCase[1] 
-        if perso["eau"]==True and perso["objet"]["bateau"]==True:
-          screen.blit(perso["bateau"], (positionColonne,positionLigne))
+        coordonnepersocolonne = debutCadre[0]+perso["colonne"]*dimCase[0]
+        coordonnepersoligne = debutCadre[1]+perso["ligne"]*dimCase[1] 
+        if perso["eau"]==True and objets["bateau"]["perso"]==True:
+          screen.blit(perso["bateau"], (coordonnepersocolonne,coordonnepersoligne))
         else:
-          if perso["objet"]["épée"]==True:
-            screen.blit(perso["épée"], (positionColonne,positionLigne))
+          if objets["épée"]["perso"]==True: 
+            screen.blit(perso["épée"], (coordonnepersocolonne,coordonnepersoligne))
           else:
-            screen.blit(perso["image"], (positionColonne,positionLigne))
-          if perso["objet"]["chaussure"]==True:
-            screen.blit(perso["chaussure"], (positionColonne,positionLigne))
+            screen.blit(perso["image"], (coordonnepersocolonne,coordonnepersoligne))
+          if objets["chaussure"]["perso"]==True:
+            screen.blit(perso["chaussure"], (coordonnepersocolonne,coordonnepersoligne))
 
 def deplacerPerso(perso):
   global debutcarte, fincarte
-  persobloquer()
   if perso["sens"] == "bas" and fincarte[0] < len(carte):#len(carte) pour le nombre de lignes
       debutcarte[0] += 1
       fincarte[0] += 1
@@ -113,10 +111,11 @@ def deplacerPerso(perso):
 
 def persobloquer():
   global debutcarte, fincarte
-  if (perso["eau"]==True and perso["objet"]["bateau"]==False) or (perso["montagne"]==True and perso["objet"]["chaussure"]==False):
+  if (perso["eau"]==True and objets["bateau"]["perso"]==False) or (perso["montagne"]==True and objets["chaussure"]["perso"]==False):
      debutcarte=[coordonnéesinitiales[0], coordonnéesinitiales[1]]
      fincarte=[coordonnéesinitiales[2], coordonnéesinitiales[3]]
-
+     return True
+  return False
     
 #####################################    
 ####   PROGRAMME PRINCIPAL   ########
