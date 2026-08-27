@@ -76,19 +76,34 @@ Corrigé avec `splitlines()`, qui ne produit pas d'élément vide final et gère
   confusion car si `perso[objet][...]=True == objet[...][perso]=True`
 - Simplification des calculs pour savoir quand afficher l'objet, permettant 
   ainsi de ne pas les affichers en dehors du cadre
-- Déplacement de l'appel de la fonction `persobloquer()` de la fonction 
-  `deplacerPerso()` à la fonction `dessinerMonde()` permettant ainsi d'éviter 
-  que la map s'affiche une fraction de seconde avec le personnage dans l'eau 
-  ou dans la montagne sans l'équipement pour
-## Ce qu'il reste à faire
 
-La logique de jeu vit encore dans les fonctions d'affichage : `dessinerMonde`
-décide si le personnage est sur l'eau ou en montagne, `dessinerObjets` gère le
-ramassage. Comme ces fonctions s'exécutent après `deplacerPerso`, le blocage
-est détecté avec une image de retard et le personnage apparaît brièvement sur
-le terrain interdit avant d'être renvoyé au départ.
-La prochaine étape est de séparer la mise à jour de l'état et l'affichage.
 
-Restent aussi à nettoyer : les compteurs `r` et `c` de `dessinerMonde`,
-incrémentés mais jamais lus, et une condition toujours vraie par construction
-puisque les indices proviennent déjà d'un `range` sur le même intervalle.
+### 4. Séparation de l'état et de l'affichage
+
+La logique de jeu vivait dans les fonctions d'affichage : `dessinerMonde`
+déterminait si le personnage était sur l'eau ou en montagne, `dessinerObjets`
+gérait le ramassage. Comme ces fonctions s'exécutaient après `deplacerPerso`
+dans la boucle, le blocage se décidait sur un état vieux d'une image : le
+personnage apparaissait brièvement sur le terrain interdit avant d'être
+renvoyé au point de départ.
+
+Une première tentative consistait à appeler `persobloquer()` depuis l'intérieur
+de `dessinerMonde`, avec un `return` immédiat. Le décalage disparaissait, mais
+la moitié de la carte n'était alors plus dessinée pour cette image.
+
+La correction retenue est une fonction `majEtat()`, appelée avant tout
+affichage, qui met à jour l'état du personnage et des objets. Elle calcule
+directement la case occupée à partir de `debutcarte` et de la position du
+personnage, au lieu de parcourir toute la zone visible pour la retrouver.
+Les fonctions de dessin ne font plus que dessiner.
+
+Un `screen.fill()` a été ajouté en début d'image. Il manquait depuis le début :
+le programme ne fonctionnait que parce que les tuiles repeignaient par hasard
+la totalité de la zone de jeu.
+
+## Limites connues
+
+La refonte de la section 4 a été écrite et relue, mais pas encore exécutée :
+la bibliothèque pygame ne peut pas se charger sur la machine de développement
+actuelle, une politique de sécurité du système bloquant ses fichiers compilés.
+La vérification à l'exécution reste donc à faire.

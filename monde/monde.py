@@ -21,19 +21,8 @@ def lire_fichier(nom):
 def dessinerMonde(carte):
   for ligne in range(debutcarte[0],fincarte[0]):
     for colonne in range(debutcarte[1],fincarte[1]):
-        numeroColonne =colonne-debutcarte[1]
-        numeroLigne=ligne-debutcarte[0]
-        if numeroColonne==perso["colonne"] and numeroLigne==perso["ligne"]:
-          perso["eau"]=False
-          perso["montagne"]=False
-          if carte[ligne][colonne]=='1':
-            perso["eau"]=True
-          elif carte[ligne][colonne]=='5':
-            perso["montagne"]=True
-          if persobloquer()==True:
-            return
-        numeroColonne = dimCase[0]*numeroColonne+debutCadre[0]
-        numeroLigne = dimCase[1]*numeroLigne+debutCadre[1]
+        numeroColonne = dimCase[1]*(colonne-debutcarte[1])+debutCadre[1]
+        numeroLigne = dimCase[0]*(ligne-debutcarte[0])+debutCadre[0]
         if carte[ligne][colonne]=='1':      
           screen.blit(imMer, (numeroColonne,numeroLigne))
         elif carte[ligne][colonne]=='2':
@@ -63,24 +52,21 @@ def creerPerso():
 
 def creerObjets():
   objet={}
-  objet["bateau"]={"colonne":17,"ligne":53,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/bateau.png').convert_alpha(), dimCase),"perso":False}
-  objet["épée"]={"colonne":14,"ligne":50,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/epee.png').convert_alpha(), dimCase),"perso":False}
-  objet["chaussure"]={"colonne":10,"ligne":52,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/chaussure.png').convert_alpha(), dimCase),"perso":False}
+  objet["bateau"]={"colonne":17,"ligne":53,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/bateau.png').convert_alpha(), dimCase),"perso":False,"cadre":False}
+  objet["épée"]={"colonne":14,"ligne":50,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/epee.png').convert_alpha(), dimCase),"perso":False,"cadre":False}
+  objet["chaussure"]={"colonne":10,"ligne":52,"image":pygame.transform.scale(pygame.image.load(DOSSIER / 'images/objet/chaussure.png').convert_alpha(), dimCase),"perso":False,"cadre":False}
   return objet
 
 def dessinerObjets(objets):
   for (objet, chose) in objets.items():
-      if debutcarte[0]<=chose["ligne"]<fincarte[0] and debutcarte[1]<=chose["colonne"]<fincarte[1]:
+      if chose["cadre"]==True and chose["perso"]==False:
         coordonneColonne = dimCase[1]*(chose["colonne"]-debutcarte[1])+debutCadre[1]
         coordonneLigne = dimCase[0]*(chose["ligne"]-debutcarte[0])+debutCadre[0]
-        if chose["perso"]==False:
-          screen.blit(chose["image"], (coordonneColonne,coordonneLigne))
-        if coordonneColonne==debutCadre[0]+perso["colonne"]*dimCase[0] and coordonneLigne==debutCadre[1]+perso["ligne"]*dimCase[1]:
-          chose["perso"]=True
+        screen.blit(chose["image"], (coordonneColonne,coordonneLigne))
 
 def dessinerperso(perso):
-        coordonnepersocolonne = debutCadre[0]+perso["colonne"]*dimCase[0]
-        coordonnepersoligne = debutCadre[1]+perso["ligne"]*dimCase[1] 
+        coordonnepersocolonne = debutCadre[1]+perso["colonne"]*dimCase[1]
+        coordonnepersoligne = debutCadre[0]+perso["ligne"]*dimCase[0] 
         if perso["eau"]==True and objets["bateau"]["perso"]==True:
           screen.blit(perso["bateau"], (coordonnepersocolonne,coordonnepersoligne))
         else:
@@ -116,7 +102,18 @@ def persobloquer():
      fincarte=[coordonnéesinitiales[2], coordonnéesinitiales[3]]
      return True
   return False
-    
+
+def majEtat():
+  #Met à jour l'état du jeu en en fonction de la case où se trouve le personnage
+  ligne = debutcarte[0]+perso["ligne"]
+  colonne = debutcarte[1]+perso["colonne"]
+  perso["eau"] = (carte[ligne][colonne] == '1')
+  perso["montagne"] = (carte[ligne][colonne] == '5')
+
+  for objets, chose in objets.items():
+      if (ligne, colonne) == (chose["ligne"], chose["colonne"]):
+        chose["perso"] = True
+      chose["cadre"]=(debutcarte[0]<=chose["ligne"]<fincarte[0] and debutcarte[1]<=chose["colonne"]<fincarte[1])
 #####################################    
 ####   PROGRAMME PRINCIPAL   ########
 #####################################
@@ -176,8 +173,10 @@ while continuer : ### BOUCLE DE JEU  ###
             
     ### ANIMATIONS   ###
     deplacerPerso(perso)        
-            
+    majEtat()
+    persobloquer()        
     ### DESSINS      ###
+    screen.fill((0, 0, 0))
     dessinerMonde(carte)
     dessinerperso(perso)
     dessinerObjets(objets)
