@@ -106,3 +106,24 @@ alors que tout se jouait dans la structure du calcul.
 
 Et qu'un programme juste n'est pas nécessairement un programme utilisable.
 Celui-ci passe tous les tests et reste inexploitable à l'échelle réelle.
+
+## Étape 2 - euclide étendu & inverse modulaire
+
+### Ce que fait la fonction
+La fonction doit permettre de trouver le PGCD de deux nombres `a` et `b` et de trouver les deux coefficients `u` et `v` tels que `a*u+b*v=PGCD(a,b)`
+
+### La formule qui n'existait pas
+
+Tout d'abord, j'ai cherché une formule finale après la boucle `while` pour trouver `u` et `v`. J'avais créé une liste de coefficients `q` et de restes `r`.
+
+Mais après plusieurs essais non concluants, j'ai essayé avec une autre perspective.
+
+J'ai cherché à quoi correspond `r(n)` par rapport à `r(n-1)` et `n(-2)`. Soit
+
+`r.append(r(-2)-r(-1)*q(-1))` et après plusieurs fausses pistes comme remonter à `r(2)` en partant de `r[-1]` en créant une nouvelle boucle `for` après, à la suite, j'ai fait l'inverse. J'ai donc finalement trouvé que c'est une récurrence avec tout simplement `v.append(v(-2)-v(-1)*q(-1))` et pareil pour `u`. Finalement, j'ai supprimé les listes inutiles par des variables et utilisé cet idiome nouveau pour moi : `u1, u2 = u2 - u1*q, u1` pour supprimer les variables temporaires.
+
+### Le piège du q[3]=1
+
+Ma fonction fonctionnait dès que q[3]=1. Elle renvoyait les bons `u` et `v`.
+
+Mais lorsque j'ai effectué un balayage, ça bloquait. Donc maintenant, je teste des valeurs "extrêmes" `a=0`, `n=2`, `a>=n`.
