@@ -38,6 +38,19 @@ def inverse_modulaire(a, n):
     else:
         return u%n
 
+def est_premier(p,k):
+    if p==3:
+        return True
+    for i in range (k):
+        a=random.randint(2, p)
+        while a ==0:
+            a=random.randint(2, p)
+        if a%p!=0:
+            if exponentiation_modulaire(a,p-1,p)!=1:
+                return False
+    return True
+
+
 
 
 #critère de réussite
@@ -86,9 +99,20 @@ for n in range(2, 60):          # balayage exhaustif des petits cas
         if x is not None:
             assert 0 <= x < n and (a * x) % n == 1, (a, n, x)
 
-print("OK")
 
 for n in range(1, 60):
     for a in range(0, 60):
         assert exponentiation_modulaire(a, 0, n) == 1 % n, (a, n)
-print("OK")
+
+def crible(n):
+    est = [True]*(n+1); est[0]=est[1]=False
+    for i in range(2, int(n**0.5)+1):
+        if est[i]:
+            for m in range(i*i, n+1, i): est[m] = False
+    return est
+
+VRAI = crible(50000)
+fn = [p for p in range(3, 50000) if VRAI[p] and not est_premier(p, 20)]
+fp = [p for p in range(3, 50000) if not VRAI[p] and est_premier(p, 20)]
+print("faux negatifs :", len(fn), fn[:5])
+print("faux positifs :", len(fp), fp[:5])
