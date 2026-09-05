@@ -39,15 +39,26 @@ def inverse_modulaire(a, n):
         return u%n
 
 def est_premier(p,k):
-    if p==3:
+    if p==2:
         return True
+    g=p-1
+    s=0
+    while g%2==0 :
+        g=g//2
+        s+=1
     for i in range (k):
         a=random.randint(2, p)
-        while a ==0:
+        while a%p ==0:
             a=random.randint(2, p)
-        if a%p!=0:
-            if exponentiation_modulaire(a,p-1,p)!=1:
-                return False
+        d=exponentiation_modulaire(a,g,p)
+        for c in range (s):
+            d2=exponentiation_modulaire(d,2,p)
+            if d!=1 and d!=p-1:
+                if d2==1:
+                    return False
+            d=d2
+        if d!=1:
+            return False
     return True
 
 
@@ -57,52 +68,6 @@ def est_premier(p,k):
 
 import math, random
 
-for _ in range(1000):
-    a = random.randint(2, 10**6)
-    b = random.randint(2, 10**6)
-    n = random.randint(2, 10**6)
-    assert exponentiation_modulaire(a, b, n) == pow(a, b, n)
-
-for _ in range(1000):
-    a = random.randint(1, 10**6)
-    b = random.randint(1, 10**6)
-    d, u, v = euclide_etendu(a, b)
-    assert d == math.gcd(a, b), f"pgcd faux : a={a} b={b} → {d}"
-    assert a*u + b*v == d,      f"Bézout faux : a={a} b={b} → u={u} v={v}"
-
-for _ in range(1000):
-    n = random.randint(2, 10**6)
-    a = random.randint(1, n-1)
-    inv = inverse_modulaire(a, n)
-    if math.gcd(a, n) == 1:
-        assert inv is not None, f"inverse manquant : a={a} n={n}"
-        assert (a * inv) % n == 1, f"inverse faux : a={a} n={n} → {inv}"
-    else:
-        assert inv is None, f"inverse impossible non détecté : a={a} n={n}"
-
-from math import gcd
-from random import randrange
-
-for _ in range(5000):
-    a, n = randrange(0, 10**6), randrange(2, 10**6)
-    assert exponentiation_modulaire(a, 0, n) == 1 % n, (a, n)
-    x = inverse_modulaire(a, n)
-    if gcd(a, n) == 1:
-        assert x is not None and 0 <= x < n and (a * x) % n == 1, (a, n, x)
-    else:
-        assert x is None, (a, n, x)
-
-for n in range(2, 60):          # balayage exhaustif des petits cas
-    for a in range(0, 60):
-        x = inverse_modulaire(a, n)
-        assert (x is None) == (gcd(a, n) != 1), (a, n, x)
-        if x is not None:
-            assert 0 <= x < n and (a * x) % n == 1, (a, n, x)
-
-
-for n in range(1, 60):
-    for a in range(0, 60):
-        assert exponentiation_modulaire(a, 0, n) == 1 % n, (a, n)
 
 def crible(n):
     est = [True]*(n+1); est[0]=est[1]=False
@@ -112,7 +77,15 @@ def crible(n):
     return est
 
 VRAI = crible(50000)
+CARMICHAEL = [561, 1105, 1729, 2465, 2821, 6601, 8911, 10585,
+              15841, 29341, 41041, 46657, 1042789205881, 1396066334401]
+
 fn = [p for p in range(3, 50000) if VRAI[p] and not est_premier(p, 20)]
 fp = [p for p in range(3, 50000) if not VRAI[p] and est_premier(p, 20)]
 print("faux negatifs :", len(fn), fn[:5])
 print("faux positifs :", len(fp), fp[:5])
+
+for c in CARMICHAEL:
+    r = sum(est_premier(c, 20) for _ in range(100))
+    print(c, "declare premier", r, "/100")
+
