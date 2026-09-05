@@ -127,3 +127,38 @@ J'ai cherché à quoi correspond `r(n)` par rapport à `r(n-1)` et `n(-2)`. Soit
 Ma fonction fonctionnait dès que q[3]=1. Elle renvoyait les bons `u` et `v`.
 
 Mais lorsque j'ai effectué un balayage, ça bloquait. Donc maintenant, je teste des valeurs "extrêmes" `a=0`, `n=2`, `a>=n`.
+
+## Étape 3 — la génération des clés
+
+### fonction est_premier
+
+Je devais construire une fonction qui prouvait qu'un nombre n'était pas premier grâce
+au petit théorème de Fermat, en utilisant ma fonction exponentiation_modulaire. On entre
+le nombre dont on cherche à savoir s'il est premier ou pas, p, et le nombre de tests
+qu'on va effectuer sur ce nombre. En effet, si le nombre qu'on trouvait était différent
+de 1, p n'était pas premier.
+
+Cela fonctionnait très bien sauf pour les nombres de Carmichael, comme
+1 042 789 205 881 = 5581 × 11161 × 16741, déclaré premier 99 fois sur 100 par Fermat.
+Les nombres de Carmichael ayant de grands facteurs premiers sont presque toujours
+déclarés premiers par ce test. En dessous de 50 000, leurs facteurs sont assez petits
+pour qu'un témoin tiré au hasard en partage souvent un : Fermat les attrape alors, mais
+par ce biais et non par le théorème.
+
+C'est pour ça que j'ai utilisé l'idée de Miller-Rabin. Elle part du lemme suivant :
+modulo un nombre premier, 1 n'a que deux racines carrées, 1 et −1. L'idée utilise la
+décomposition de p−1 en d × 2^s, avec d un nombre impair. L'objectif est donc maintenant
+de parcourir les `exponentiation_modulaire(a, b, p)` de b = d jusqu'à b = p−1 = d × 2^s,
+pour chaque test. Si on détecte que l'exponentiation modulaire d'un rang n est différente
+de 1 et de p−1, et que celle du rang n+1 vaut 1, alors p n'est pas premier. C'est
+exactement ce que nous dit l'idée de Miller-Rabin. Le même nombre 1 042 789 205 881 est
+alors déclaré premier 0 fois sur 100.
+
+Avec la seule idée de Miller-Rabin, le test donnait 17 107 faux positifs : quand la suite
+n'atteint jamais 1, il n'y a aucune racine carrée à examiner, donc rien à rejeter — 9
+était déclaré premier. J'ai donc ajouté un test final sur le dernier terme de la suite,
+qui doit valoir 1 : c'est le test de Fermat, remis en garde-fou.
+
+Finalement, le programme donne 0 faux négatif et 0 faux positif pour p de 3 à 50 000,
+0/100 sur les 15 nombres de Carmichael testés, et 0 désaccord avec sympy sur 300 nombres
+de 61 bits. Ces tests prouvent que p n'est pas premier ; l'inverse ne fonctionne pas.
