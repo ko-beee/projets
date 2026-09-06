@@ -13,8 +13,8 @@ opérations arithmétiques.
 | Étape | Contenu | État |
 |---|---|---|
 | 1 | Exponentiation modulaire rapide | fait |
-| 2 | Algorithme d'Euclide étendu | à faire |
-| 3 | Test de primalité | à faire |
+| 2 | Algorithme d'Euclide étendu | fait |
+| 3 | Test de primalité | fait |
 | 4 | Génération de clés, chiffrement, déchiffrement | à faire |
 | 5 | Attaque par factorisation et mesure du coût | à faire |
 
@@ -162,3 +162,43 @@ qui doit valoir 1 : c'est le test de Fermat, remis en garde-fou.
 Finalement, le programme donne 0 faux négatif et 0 faux positif pour p de 3 à 50 000,
 0/100 sur les 15 nombres de Carmichael testés, et 0 désaccord avec sympy sur 300 nombres
 de 61 bits. Ces tests prouvent que p n'est pas premier ; l'inverse ne fonctionne pas.
+
+### fonction exponentiation_rapide
+
+Ma fonction exponentiation_modulaire était trop lente pour un exposant de 512 bits. De
+plus, la mémoire de ma machine ne suffisait même pas. Une méthode plus efficace pour
+calculer une exponentiation modulaire est de la calculer à l'aide de l'écriture binaire
+de b.
+```
+ bits | multiplications | log2(b)
+   20 |              75 |      20
+   40 |             522 |      40
+   60 |           2 064 |      60
+  100 |          16 504 |     100
+  140 |         131 091 |     140
+  180 |         524 413 |     180
+  200 |       1 048 809 |     200
+```
+Dans ce tableau, la colonne « multiplications » donne le nombre de multiplications
+nécessaires pour un exposant de cette taille avec la première méthode, et la colonne
+« log2(b) » avec la seconde.
+
+Par exemple, pour 200 bits, la première méthode prenait 1,3871 s et la nouvelle
+seulement 0,0002 s, soit un écart d'un facteur 7000.
+
+Je garde cette fonction inutilisée car elle témoigne de mon raisonnement : j'étais allé
+intuitivement dans cette direction avant de chercher autre chose.
+
+### fonction generer_premier(bits)
+
+Cette fonction doit générer un nombre premier d'un certain nombre de bits. C'est pourquoi
+l'intervalle aléatoire dans lequel le nombre est choisi est primordial. Cet intervalle est
+tout simplement [2^(bits−1), 2^bits − 1] : un nombre choisi dedans aura donc exactement
+bits bits. Ensuite il suffit d'utiliser la fonction est_premier pour vérifier, et s'il ne
+l'est pas, d'en choisir un autre aléatoirement.
+
+On peut même utiliser le théorème des nombres premiers pour estimer le nombre d'appels à
+est_premier. Pour bits = 512, ln(2^512) vaut environ 355 candidats. Or on ne choisit que
+des nombres impairs (car 2 est le seul nombre premier pair), et on appellera donc en
+moyenne 178 fois est_premier avant d'en trouver un pour 512 bits. J'ai lancé le programme
+et trouvé en moyenne 164 candidats impairs testés sur 100 tirages écart cohérent avec la variance.

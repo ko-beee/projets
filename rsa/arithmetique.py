@@ -117,7 +117,7 @@ print("valeurs distinctes sur 50 tirages :", len(ech))
 
 # nombre de candidats testés avant succès, à comparer à ton estimation par ln
 essais = []
-for _ in range(20):
+for _ in range(100):
     n = 0
     while True:
         n += 1
@@ -125,7 +125,7 @@ for _ in range(20):
         if est_premier(c, 20):
             break
     essais.append(n)
-print("candidats impairs testés à 512 bits : moyenne %.0f sur 20 tirages" % (sum(essais)/len(essais)))
+print("candidats impairs testés à 512 bits : moyenne %.0f sur 100 tirages" % (sum(essais)/len(essais)))
 
 for _ in range(2000):
     a, b, n = random.randrange(0,10**4), random.randrange(0,10**4), random.randrange(1,10**4)
