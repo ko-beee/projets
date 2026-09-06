@@ -1,3 +1,6 @@
+import random
+from math import log2
+
 def exponentiation_modulaire(a, b, n):
     """Renvoie a^b mod n."""
     i=0
@@ -16,6 +19,16 @@ def exponentiation_modulaire(a, b, n):
         return 1%n
     return c[i]%n
 
+def exponentiation_rapide(a,b,n):
+    p=1%n
+    s=a%n
+    while b>0:
+        if b%2==1:
+            p=p*s%n
+        b=b//2
+        s=s**2%n
+    return p
+            
 def euclide_etendu(a, b):
     #Renvoie (d, u, v) tels que d = pgcd(a, b) et a*u + b*v = d.    
     u2=1
