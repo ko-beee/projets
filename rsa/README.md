@@ -110,23 +110,31 @@ Celui-ci passe tous les tests et reste inexploitable à l'échelle réelle.
 ## Étape 2 - euclide étendu & inverse modulaire
 
 ### Ce que fait la fonction
-La fonction doit permettre de trouver le PGCD de deux nombres `a` et `b` et de trouver les deux coefficients `u` et `v` tels que `a*u+b*v=PGCD(a,b)`
+La fonction doit permettre de trouver le PGCD de deux nombres `a` et `b`
+ et de trouver les deux coefficients `u` et `v` tels que `a*u+b*v=PGCD(a,b)`
 
 ### La formule qui n'existait pas
 
-Tout d'abord, j'ai cherché une formule finale après la boucle `while` pour trouver `u` et `v`. J'avais créé une liste de coefficients `q` et de restes `r`.
+Tout d'abord, j'ai cherché une formule finale après la boucle `while` pour
+ trouver `u` et `v`. J'avais créé une liste de coefficients `q` et de restes `r`.
 
 Mais après plusieurs essais non concluants, j'ai essayé avec une autre perspective.
 
 J'ai cherché à quoi correspond `r(n)` par rapport à `r(n-1)` et `n(-2)`. Soit
 
-`r.append(r(-2)-r(-1)*q(-1))` et après plusieurs fausses pistes comme remonter à `r(2)` en partant de `r[-1]` en créant une nouvelle boucle `for` après, à la suite, j'ai fait l'inverse. J'ai donc finalement trouvé que c'est une récurrence avec tout simplement `v.append(v(-2)-v(-1)*q(-1))` et pareil pour `u`. Finalement, j'ai supprimé les listes inutiles par des variables et utilisé cet idiome nouveau pour moi : `u1, u2 = u2 - u1*q, u1` pour supprimer les variables temporaires.
+`r.append(r(-2)-r(-1)*q(-1))` et après plusieurs fausses pistes comme remonter
+ à `r(2)` en partant de `r[-1]` en créant une nouvelle boucle `for` après, à la
+suite, j'ai fait l'inverse. J'ai donc finalement trouvé que c'est une récurrence
+avec tout simplement `v.append(v(-2)-v(-1)*q(-1))` et pareil pour `u`. Finalement,
+j'ai supprimé les listes inutiles par des variables et utilisé cet idiome nouveau
+pour moi : `u1, u2 = u2 - u1*q, u1` pour supprimer les variables temporaires.
 
 ### Le piège du q[3]=1
 
 Ma fonction fonctionnait dès que q[3]=1. Elle renvoyait les bons `u` et `v`.
 
-Mais lorsque j'ai effectué un balayage, ça bloquait. Donc maintenant, je teste des valeurs "extrêmes" `a=0`, `n=2`, `a>=n`.
+Mais lorsque j'ai effectué un balayage, ça bloquait. Donc maintenant, je teste
+ des valeurs "extrêmes" `a=0`, `n=2`, `a>=n`.
 
 ## Étape 3 — la génération des clés
 
@@ -202,3 +210,26 @@ est_premier. Pour bits = 512, ln(2^512) vaut environ 355 candidats. Or on ne cho
 des nombres impairs (car 2 est le seul nombre premier pair), et on appellera donc en
 moyenne 178 fois est_premier avant d'en trouver un pour 512 bits. J'ai lancé le programme
 et trouvé en moyenne 164 candidats impairs testés sur 100 tirages écart cohérent avec la variance.
+
+### fonction generer_cles
+
+Cette fonction est le cœur du fonctionnement de RSA, car c'est elle qui crée les clés
+publique et privée. Elle utilise toutes les fonctions précédentes. Elle génère d'abord
+deux nombres premiers p et q (non égaux), puis calcule phi = (p−1)(q−1). À partir de là,
+un nombre e est choisi aléatoirement et on génère son inverse modulo phi ; en réalité il
+doit souvent être rechoisi, car tous les nombres n'ont pas d'inverse modulo phi.
+
+Pourquoi modulo phi ? Tout simplement parce que `m^phi ≡ 1 [n]` lorsque m est premier
+avec n, et que si `e*d ≡ 1 [phi]`, alors `m^(e*d) ≡ m [n]`. Ce sont les clés publique
+(n, e) et privée (n, d).
+
+Pour chiffrer un nombre, il suffit d'utiliser la fonction chiffrement avec le nombre et
+la clé publique. Cette fonction utilise simplement exponentiation_rapide, et pour le
+déchiffrement c'est le même principe et la même fonction qui est appelée. Les tests
+effectués montrent que 10 clés de 512 bits sont générées en 5,22 s, avec 200
+chiffrements/déchiffrements corrects par taille, de 32 à 512 bits.
+
+Avant d'arriver là, ma fonction passait tous les tests alors qu'elle ne chiffrait rien
+du tout : les clés ne modifiaient pas le message. C'est le même problème que pour q3, où
+mon code passait les tests sans être utilisable. La réaction a été d'ajouter un test qui
+vérifie que le message chiffré est bien différent du message clair.

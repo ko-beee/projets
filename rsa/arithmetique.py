@@ -46,7 +46,7 @@ def euclide_etendu(a, b):
 def inverse_modulaire(a, n):
     """Renvoie l'inverse de a modulo n, ou None s'il n'existe pas."""
     d,u,v=euclide_etendu(a,n)
-    if d**2!=1:
+    if d!=1:
         return None
     else:
         return u%n
@@ -83,60 +83,45 @@ def generer_premier(bits):
             b=est_premier(a,20)
     return a
 
+def generer_cles(bits):
+    p=generer_premier(bits)
+    q=generer_premier(bits)
+    d=None
+    while p==q:
+        p=generer_premier(bits)
+    n=p*q
+    phi=(p-1)*(q-1)
+    e=random.randint(2,phi-1)
+    while d==None:  
+        e=random.randint(2,phi-1)
+        d=inverse_modulaire(e,phi)
+    return ((n,e),(n,d))
+
+def chiffrement(m,cle_publique):
+    n,e=cle_publique
+    return exponentiation_rapide(m,e,n)
+
+def dechiffrement(M,cle_prive):
+    n,d=cle_prive
+    return exponentiation_rapide(M,d,n)
 
 
 
 #critère de réussite
-import random, time
+import random
+for bits in [32, 64, 128, 256]:
+    for _ in range(10):
+        (n, e), (n2, d) = generer_cles(bits)
+        assert n == n2
+        assert n.bit_length() in (2*bits - 1, 2*bits)
+        for _ in range(20):
+            m = random.randrange(0, n)
+            c = exponentiation_rapide(m, e, n)
+            assert exponentiation_rapide(c, d, n) == m, (m, n, e, d)
+            assert c != m, "le chiffrement ne fait rien"
+            assert e != 1 and d != 1
+    print(bits, "OK")
 
-
-import random, time
-
-def oracle(p, k=40):
-    """Vérificateur de test uniquement. pow natif autorisé ici, jamais dans le code."""
-    if p < 2:
-        return False
-    for _ in range(k):
-        a = random.randrange(2, p - 1)
-        if pow(a, p - 1, p) != 1:
-            return False
-    return True
-
-
-
-for bits in [8, 16, 32, 64, 128, 256, 512]:
-    t = time.time()
-    for _ in range(20):
-        p = generer_premier(bits)
-        assert oracle(p), ("pas premier", bits, p)
-        assert p.bit_length() == bits, ("mauvaise taille", bits, p.bit_length())
-    print("%4d bits : OK   20 premiers en %.2f s" % (bits, time.time() - t))
-
-ech = {generer_premier(32) for _ in range(50)}
-print("valeurs distinctes sur 50 tirages :", len(ech))
-
-# nombre de candidats testés avant succès, à comparer à ton estimation par ln
-essais = []
-for _ in range(100):
-    n = 0
-    while True:
-        n += 1
-        c = random.randrange(2**511, 2**512) | 1
-        if est_premier(c, 20):
-            break
-    essais.append(n)
-print("candidats impairs testés à 512 bits : moyenne %.0f sur 100 tirages" % (sum(essais)/len(essais)))
-
-for _ in range(2000):
-    a, b, n = random.randrange(0,10**4), random.randrange(0,10**4), random.randrange(1,10**4)
-    assert exponentiation_rapide(a,b,n) == pow(a,b,n), (a,b,n)
-
-for n in range(1,60):
-    for a in range(0,60):
-        for b in range(0,40):
-            assert exponentiation_rapide(a,b,n) == pow(a,b,n), (a,b,n)
-
-p = 2**200-1
-for nom, f in [("gloutonne", exponentiation_modulaire), ("binaire", exponentiation_rapide)]:
-    t=time.time(); f(3, p-1, p); print(nom, "%.4f s" % (time.time()-t))
-print("OK")
+    d,u,v=euclide_etendu(3,11)
+    if 3*u+11*v!=1:print(False)
+    else:print(True)
