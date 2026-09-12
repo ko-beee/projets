@@ -233,3 +233,35 @@ Avant d'arriver là, ma fonction passait tous les tests alors qu'elle ne chiffra
 du tout : les clés ne modifiaient pas le message. C'est le même problème que pour q3, où
 mon code passait les tests sans être utilisable. La réaction a été d'ajouter un test qui
 vérifie que le message chiffré est bien différent du message clair.
+## Étape 4 — factorisation (attaque)
+
+Cette dernière fonction, factoriser, permet de retrouver p et q, les deux nombres premiers
+utilisés dans le chiffrement. La fonction commence par vérifier i = 2, puis passe à i = 3
+et avance de 2 en 2 jusqu'à i > sqrt(n). Cette borne suffit : si n admet un facteur, le
+plus petit est nécessairement inférieur ou égal à sqrt(n), sinon le produit des deux
+facteurs dépasserait n. On trouve ce tableau comparant le temps de factorisation au nombre
+de bits de n :
+
+| bits par premier | taille de n | temps |
+|---:|---:|---:|
+| 12 | 23 bits | 0,0002 s |
+| 16 | 31 bits | 0,0037 s |
+| 20 | 39 bits | 0,1021 s |
+| 24 | 47 bits | 0,9782 s |
+| 28 | 56 bits | 10,2933 s |
+| 32 | 63 bits | 214,7849 s |
+
+Ce tableau nous montre que tous les 2 bits environ, la durée nécessaire pour factoriser n
+est multipliée par 2. On peut donc calculer le temps que prendrait cette méthode pour
+factoriser un n de 1024 bits : `214,7849 × 2^((1024 − 63)/2)`, soit 9,48 × 10^146
+secondes, donc environ 2 × 10^129 fois l'âge de l'univers. Avec cette technique, il est
+donc impossible de déchiffrer un message chiffré avec un n de 1024 bits sans avoir la clé
+privée.
+
+Ce nombre n'est qu'une approximation, obtenue en prolongeant la droite tracée par mes six
+mesures. Le nombre réel peut être différent, mais restera sans doute dans cet ordre de
+grandeur.
+
+Cependant, il existe d'autres méthodes beaucoup plus efficaces, comme le crible algébrique
+général (GNFS), qui permettent de casser un module de ce type en quelques mois seulement.
+C'est pourquoi les standards actuels imposent 2048 bits minimum.

@@ -1,6 +1,6 @@
 import random
 from math import log2
-
+#rsa
 def exponentiation_modulaire(a, b, n):
     """Renvoie a^b mod n."""
     i=0
@@ -106,22 +106,39 @@ def dechiffrement(M,cle_prive):
     return exponentiation_rapide(M,d,n)
 
 
+#attaque
+def factoriser(n):
+    if n%2==0:
+        return 2
+    if n==0 or n==1:return False
+    i=3
+    while i*i<=n:
+        if n%i==0:
+            return i
+        i+=2
+    return None
+
 
 #critère de réussite
-import random
-for bits in [32, 64, 128, 256]:
-    for _ in range(10):
-        (n, e), (n2, d) = generer_cles(bits)
-        assert n == n2
-        assert n.bit_length() in (2*bits - 1, 2*bits)
-        for _ in range(20):
-            m = random.randrange(0, n)
-            c = exponentiation_rapide(m, e, n)
-            assert exponentiation_rapide(c, d, n) == m, (m, n, e, d)
-            assert c != m, "le chiffrement ne fait rien"
-            assert e != 1 and d != 1
-    print(bits, "OK")
+from math import isqrt
 
-    d,u,v=euclide_etendu(3,11)
-    if 3*u+11*v!=1:print(False)
-    else:print(True)
+for n in range(2, 20000):
+    f = factoriser(n)
+    if f is None:
+        assert est_premier(n, 20), ("dit premier a tort", n)
+    else:
+        assert n % f == 0 and est_premier(f, 20), ("mauvais facteur", n, f)
+        assert all(n % k != 0 for k in range(2, f)), ("pas le plus petit", n, f)
+print("OK")
+
+for bits in [16, 20, 24]:
+    (n, e), _ = generer_cles(bits)
+    p = factoriser(n)
+    assert p is not None and n % p == 0
+    print(bits, "bits :", n, "=", p, "x", n//p)
+
+import time
+for bits in [12, 16, 20, 24, 28, 32]:
+    (n, e), _ = generer_cles(bits)
+    t = time.time(); factoriser(n); dt = time.time()-t
+    print("%2d bits par premier | n = %3d bits | %.4f s" % (bits, n.bit_length(), dt))
